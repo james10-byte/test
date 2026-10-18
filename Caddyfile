@@ -1,8 +1,0 @@
-{$DOMAIN} {
-	request_body {
-		max_size 120MB
-	}
-	reverse_proxy app:3000 {
-		flush_interval -1
-	}
-}

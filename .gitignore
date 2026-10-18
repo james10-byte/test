@@ -1,8 +1,25 @@
-node_modules/
-data/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
 .env
-*.keystore
+
+# Builds & Uploads
+builds/
+uploads/
+
+# Android / Gradle caches
+.gradle/
+build/
+local.properties
+*.apk
+*.aab
+
+# Keystores & Signing
 *.jks
-*.p12
-*.log
+*.keystore
+
+# OS
 .DS_Store
+Thumbs.db

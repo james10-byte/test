@@ -1,20 +1,475 @@
-<!doctype html>
-<html lang="en" data-theme="dark">
+<!DOCTYPE html>
+<html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="color-scheme" content="dark light">
-  <meta name="theme-color" content="#0a0d14">
-  <meta name="description" content="Upload your website. Customize your icon. Build a real Android APK.">
-  <title>INCONNU BOY APK BUILDER</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="css/styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>WEB → APK | Turn your website into an Android app</title>
+  <meta name="description"
+    content="A simple, fast local Web-to-APK builder. Turn any website into a standalone Android APK.">
+  <meta name="theme-color" content="#0a0a0d">
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <div id="app"></div>
-  <div id="toasts" class="toasts" role="status" aria-live="polite"></div>
-  <noscript>INCONNU BOY APK BUILDER needs JavaScript to run.</noscript>
-  <script src="config.js"></script>
-  <script type="module" src="js/main.js"></script>
+  <div class="app-shell">
+
+    <!-- ============ TOP HEADER ============ -->
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="brand">
+          <div class="logo-icon">
+            <img src="icon.png" alt="Web to APK Icon" class="brand-logo-img">
+          </div>
+          <div class="brand-text">
+            <h1 class="brand-title">WEB <span class="arrow">→</span> APK</h1>
+            <p class="brand-subtitle">Turn your website into an Android app.</p>
+          </div>
+        </div>
+        <div id="env-badge" class="env-badge" title="Gradle & Android SDK Status">
+          <span class="status-dot"></span>
+          <span id="env-text">Detecting environment...</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============ MAIN WORKSPACE ============ -->
+    <main class="app-main" id="main-card">
+      <div class="workspace">
+
+        <!-- LEFT: Configuration + Progress + Success (mutually exclusive) -->
+        <div class="workspace-main">
+
+          <!-- ============ FORM VIEW ============ -->
+          <form id="build-form" class="form-view">
+            <div class="form-heading">
+              <div>
+                <h2 class="form-title">Build Your Android App</h2>
+                <p class="form-description">Configure your website wrapper and compile a standalone APK locally.</p>
+              </div>
+            </div>
+
+            <!-- ====== Section: Basic Info ====== -->
+            <section class="form-section">
+              <h3 class="section-label">Basic Information</h3>
+              <div class="form-grid">
+                <div class="form-group form-group--full">
+                  <label for="website-url">Website URL <span class="required">*</span></label>
+                  <div class="input-wrapper">
+                    <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="2" y1="12" x2="22" y2="12"></line>
+                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                    <input type="url" id="website-url" name="url" placeholder="https://example.com" required
+                      autocomplete="off">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="app-name">App Name <span class="required">*</span></label>
+                  <input type="text" id="app-name" name="app_name" placeholder="My Website" required autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                  <label for="package-name">Package Name <span class="required">*</span></label>
+                  <input type="text" id="package-name" name="package_name" placeholder="com.webtoapk.mywebsite" required
+                    autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                  <label for="version-name">Version</label>
+                  <input type="text" id="version-name" name="version_name" value="1.0.0" placeholder="1.0.0">
+                </div>
+
+                <div class="form-group">
+                  <label for="version-code">Version Code</label>
+                  <input type="number" id="version-code" name="version_code" value="1" min="1" placeholder="1">
+                </div>
+              </div>
+            </section>
+
+            <!-- ====== Section: App Icon ====== -->
+            <section class="form-section">
+              <h3 class="section-label">App Icon</h3>
+              <div class="icon-dropzone" id="icon-dropzone">
+                <input type="file" id="icon-file" name="icon" accept="image/png,image/jpeg,image/webp"
+                  class="visually-hidden">
+                <div class="dropzone-content" id="dropzone-default">
+                  <div class="upload-icon-circle">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                  </div>
+                  <div class="dropzone-text-block">
+                    <p class="dropzone-title">Click to upload or drag &amp; drop</p>
+                    <p class="dropzone-hint">PNG / JPEG / WebP · Defaults to app icon.png</p>
+                  </div>
+                </div>
+                <div class="dropzone-preview visually-hidden" id="dropzone-preview">
+                  <img id="icon-preview-img" src="" alt="App Icon Preview">
+                  <div class="preview-info">
+                    <span id="preview-filename" class="preview-name">icon.png</span>
+                    <button type="button" id="remove-icon-btn" class="btn-remove-icon">Remove</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ====== Section: Permissions ====== -->
+            <section class="form-section">
+              <h3 class="section-label">Permissions</h3>
+              <div class="checkbox-grid">
+                <label class="custom-checkbox locked">
+                  <input type="checkbox" name="permissions" value="internet" checked disabled>
+                  <span class="checkmark"></span>
+                  <span class="checkbox-text">Internet</span>
+                </label>
+                <label class="custom-checkbox">
+                  <input type="checkbox" name="permissions" value="camera">
+                  <span class="checkmark"></span>
+                  <span class="checkbox-text">Camera</span>
+                </label>
+                <label class="custom-checkbox">
+                  <input type="checkbox" name="permissions" value="microphone">
+                  <span class="checkmark"></span>
+                  <span class="checkbox-text">Microphone</span>
+                </label>
+                <label class="custom-checkbox">
+                  <input type="checkbox" name="permissions" value="location">
+                  <span class="checkmark"></span>
+                  <span class="checkbox-text">Location</span>
+                </label>
+                <label class="custom-checkbox">
+                  <input type="checkbox" name="permissions" value="notifications">
+                  <span class="checkmark"></span>
+                  <span class="checkbox-text">Notifications</span>
+                </label>
+                <label class="custom-checkbox">
+                  <input type="checkbox" name="permissions" value="bluetooth">
+                  <span class="checkmark"></span>
+                  <span class="checkbox-text">Bluetooth</span>
+                </label>
+                <label class="custom-checkbox">
+                  <input type="checkbox" name="permissions" value="photos_videos">
+                  <span class="checkmark"></span>
+                  <span class="checkbox-text">Photos &amp; Videos</span>
+                </label>
+              </div>
+            </section>
+
+            <!-- ====== Section: WebView Features ====== -->
+            <section class="form-section">
+              <h3 class="section-label">WebView Features</h3>
+              <div class="checkbox-grid">
+                <label class="custom-checkbox">
+                  <input type="checkbox" name="javascript" checked>
+                  <span class="checkmark"></span>
+                  <span class="checkbox-text">JavaScript</span>
+                </label>
+                <label class="custom-checkbox">
+                  <input type="checkbox" name="dom_storage" checked>
+                  <span class="checkmark"></span>
+                  <span class="checkbox-text">DOM Storage</span>
+                </label>
+                <label class="custom-checkbox">
+                  <input type="checkbox" name="file_upload" checked>
+                  <span class="checkmark"></span>
+                  <span class="checkbox-text">File Upload</span>
+                </label>
+                <label class="custom-checkbox">
+                  <input type="checkbox" name="downloads" checked>
+                  <span class="checkmark"></span>
+                  <span class="checkbox-text">Downloads</span>
+                </label>
+                <label class="custom-checkbox">
+                  <input type="checkbox" name="fullscreen">
+                  <span class="checkmark"></span>
+                  <span class="checkbox-text">Fullscreen</span>
+                </label>
+                <label class="custom-checkbox">
+                  <input type="checkbox" name="back_navigation" checked>
+                  <span class="checkmark"></span>
+                  <span class="checkbox-text">Back Navigation</span>
+                </label>
+              </div>
+            </section>
+
+            <!-- ====== Section: External Links ====== -->
+            <section class="form-section">
+              <h3 class="section-label">External Links</h3>
+              <div class="radio-group">
+                <label class="custom-radio">
+                  <input type="radio" name="external_links" value="inside">
+                  <span class="radiomark"></span>
+                  <span class="radio-text">Inside App</span>
+                </label>
+                <label class="custom-radio">
+                  <input type="radio" name="external_links" value="browser" checked>
+                  <span class="radiomark"></span>
+                  <span class="radio-text">Open in Browser</span>
+                </label>
+              </div>
+            </section>
+
+            <!-- ====== Section: Branding ====== -->
+            <section class="form-section">
+              <h3 class="section-label">Branding</h3>
+              <div class="color-pickers-row">
+                <div class="color-item">
+                  <label for="primary-color">Primary Color</label>
+                  <div class="color-input-wrapper">
+                    <input type="color" id="primary-color" name="primary_color" value="#8B5CF6">
+                    <span class="color-hex-label" id="primary-hex">#8B5CF6</span>
+                  </div>
+                </div>
+                <div class="color-item">
+                  <label for="statusbar-color">Status Bar Color</label>
+                  <div class="color-input-wrapper">
+                    <input type="color" id="statusbar-color" name="status_bar_color" value="#09090B">
+                    <span class="color-hex-label" id="statusbar-hex">#09090B</span>
+                  </div>
+                </div>
+                <div class="color-item">
+                  <label for="navbar-color">Navigation Bar Color</label>
+                  <div class="color-input-wrapper">
+                    <input type="color" id="navbar-color" name="nav_bar_color" value="#09090B">
+                    <span class="color-hex-label" id="navbar-hex">#09090B</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Error Container -->
+            <div id="form-error" class="alert alert-error visually-hidden"></div>
+
+            <!-- Action Button -->
+            <div class="form-actions">
+              <button type="submit" id="build-btn" class="btn btn-primary">
+                <span class="btn-text">BUILD RELEASE APK</span>
+                <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2.5">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </form>
+
+          <!-- ============ PROGRESS VIEW ============ -->
+          <div id="progress-view" class="progress-view visually-hidden">
+            <div class="progress-header">
+              <div>
+                <h2 class="progress-title">Building your Release APK</h2>
+                <p class="progress-subtitle">Compiling and signing your Android package locally. This usually takes a minute.</p>
+              </div>
+              <span id="progress-percent" class="progress-percent">0%</span>
+            </div>
+
+            <div class="progress-bar-track">
+              <div id="progress-bar-fill" class="progress-bar-fill" style="width: 0%;"></div>
+            </div>
+
+            <p id="current-status-message" class="status-message">Initializing build pipeline...</p>
+
+            <div class="step-list">
+              <div class="step-item" id="step-validating">
+                <div class="step-icon">
+                  <span class="icon-circle"></span>
+                  <svg class="icon-check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <span class="step-text">Validating website</span>
+              </div>
+              <div class="step-item" id="step-preparing">
+                <div class="step-icon">
+                  <span class="icon-circle"></span>
+                  <svg class="icon-check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <span class="step-text">Preparing Android project</span>
+              </div>
+              <div class="step-item" id="step-configuring">
+                <div class="step-icon">
+                  <span class="icon-circle"></span>
+                  <svg class="icon-check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <span class="step-text">Applying configuration</span>
+              </div>
+              <div class="step-item" id="step-icon">
+                <div class="step-icon">
+                  <span class="icon-circle"></span>
+                  <svg class="icon-check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <span class="step-text">Generating icon</span>
+              </div>
+              <div class="step-item" id="step-permissions">
+                <div class="step-icon">
+                  <span class="icon-circle"></span>
+                  <svg class="icon-check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <span class="step-text">Configuring permissions</span>
+              </div>
+              <div class="step-item" id="step-building">
+                <div class="step-icon">
+                  <span class="icon-circle"></span>
+                  <svg class="icon-check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <span class="step-text">Compiling Release APK</span>
+              </div>
+              <div class="step-item" id="step-signing">
+                <div class="step-icon">
+                  <span class="icon-circle"></span>
+                  <svg class="icon-check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <span class="step-text">Signing Release APK</span>
+              </div>
+              <div class="step-item" id="step-verifying">
+                <div class="step-icon">
+                  <span class="icon-circle"></span>
+                  <svg class="icon-check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <span class="step-text">Verifying APK Signature</span>
+              </div>
+            </div>
+
+            <div id="build-error-alert" class="alert alert-error visually-hidden">
+              <p id="build-error-msg"></p>
+              <button type="button" id="retry-btn" class="btn btn-secondary mt-3">Try Again</button>
+            </div>
+          </div>
+
+          <!-- ============ SUCCESS VIEW ============ -->
+          <div id="success-view" class="success-view visually-hidden">
+            <div class="success-badge-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+
+            <div class="success-content">
+              <h2 class="success-title">Release APK Ready</h2>
+              <p class="success-subtitle">Your release-signed Android package is built and ready to install.</p>
+            </div>
+
+            <div class="apk-card">
+              <div class="apk-icon-block">
+                <div class="apk-icon-glyph" id="apk-icon-glyph">A</div>
+                <div class="apk-info">
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <h3 id="result-app-name" class="apk-app-name">My Website</h3>
+                    <span class="variant-pill" style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; padding: 2px 7px; border-radius: 9999px; background: rgba(139,92,246,0.15); color: #a78bfa; border: 1px solid rgba(139,92,246,0.3);">RELEASE</span>
+                  </div>
+                  <p id="result-version" class="apk-version">Version 1.0.0</p>
+                  <p id="result-package" class="apk-package">com.webtoapk.mywebsite</p>
+                </div>
+              </div>
+              <span id="result-size" class="apk-size-badge">0.0 MB</span>
+            </div>
+
+            <div class="success-actions">
+              <a id="download-apk-btn" href="#" class="btn btn-primary btn-download" download>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>DOWNLOAD RELEASE APK</span>
+              </a>
+              <button type="button" id="build-another-btn" class="btn btn-secondary">
+                <span>BUILD ANOTHER</span>
+              </button>
+            </div>
+          </div>
+
+        </div><!-- /.workspace-main -->
+
+        <!-- RIGHT: Build Summary Panel -->
+        <aside class="summary-panel" id="summary-panel" aria-label="Build summary">
+          <div class="summary-header">
+            <h2 class="summary-title">Build Summary</h2>
+            <span class="summary-pill">Live</span>
+          </div>
+          <p class="summary-caption">Reflects your current configuration.</p>
+
+          <div class="summary-list">
+            <div class="summary-row">
+              <span class="summary-key">Website</span>
+              <span class="summary-val" id="sum-website">—</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">App Name</span>
+              <span class="summary-val" id="sum-app-name">—</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Package</span>
+              <span class="summary-val summary-val--mono" id="sum-package">—</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Version</span>
+              <span class="summary-val summary-val--mono" id="sum-version">—</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">Icon</span>
+              <span class="summary-val" id="sum-icon">None</span>
+            </div>
+            <div class="summary-row summary-row--column">
+              <span class="summary-key">Permissions</span>
+              <span class="summary-val summary-val--wrap" id="sum-permissions">Internet</span>
+            </div>
+            <div class="summary-row summary-row--column">
+              <span class="summary-key">WebView</span>
+              <span class="summary-val summary-val--wrap" id="sum-webview">—</span>
+            </div>
+            <div class="summary-row">
+              <span class="summary-key">External Links</span>
+              <span class="summary-val" id="sum-external-links">Browser</span>
+            </div>
+          </div>
+        </aside>
+
+      </div><!-- /.workspace -->
+    </main>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="app-footer">
+      <p>Powered by Android WebView &amp; Gradle &bull; Local &amp; Secure APK Compilation</p>
+    </footer>
+
+  </div><!-- /.app-shell -->
+
+  <script src="app.js"></script>
 </body>
+
 </html>

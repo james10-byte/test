@@ -1,0 +1,9 @@
+{
+  "appId": "com.glitchartiste.aqianalysis",
+  "appName": "AQI Analysis",
+  "webDir": "www",
+  "server": {
+    "url": "https://aqi-analysis-and-visualization.vercel.app/",
+    "cleartext": false
+  }
+}

@@ -1,0 +1,7 @@
+
+PS C:\Users\msall\Desktop\BE\SEM 7\BDA_MINI_PROJ> npm i -g vercel
+
+PS C:\Users\msall\Desktop\BE\SEM 7\BDA_MINI_PROJ>  vercel login
+
+PS C:\Users\msall\Desktop\BE\SEM 7\BDA_MINI_PROJ> vercel .
+
