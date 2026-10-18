@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install YAML parser for configuration tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-yaml
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - name: Run unit tests
+        run: npm test
+
+  browser-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run browser tests
+        run: npm run test:browser
+
+  shell-scripts:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check syntax
+        run: |
+          for file in install.sh scripts/*.sh scripts/lib/*.sh scripts/docker/*.sh; do
+            bash -n "$file"
+          done
+      - name: ShellCheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+          shellcheck --severity=warning --exclude=SC1090,SC1091 install.sh scripts/*.sh scripts/lib/*.sh scripts/docker/*.sh
+
+  docker:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Compose configuration
+        run: |
+          cp .env.example .env
+          docker compose config --quiet
+          docker compose --profile https config --quiet
+      - name: Build image
+        run: docker build --tag inconnu-boy-apk-builder:ci .
+      - name: Check toolchain in image
+        run: |
+          docker run --rm inconnu-boy-apk-builder:ci sh -c 'java -version && /opt/gradle/bin/gradle --version && ls "$ANDROID_HOME/build-tools"'
+
+  dependency-audit:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Audit production dependencies
+        run: |
+          npm install --package-lock-only --ignore-scripts
+          npm audit --omit=dev --audit-level=high
+
+  android-template:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.9
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - name: Install Android packages
+        run: |
+          export ANDROID_HOME="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-34" "build-tools;34.0.0"
+      - name: Generate sample project
+        run: node scripts/prepare-sample-project.mjs "$RUNNER_TEMP/sample"
+      - name: Compile sample APK
+        run: |
+          mapfile -t arguments < "$RUNNER_TEMP/sample/gradle-arguments.txt"
+          gradle --no-daemon --console=plain -p "$RUNNER_TEMP/sample/project" assembleDebug "${arguments[@]}"
+      - name: Check APK
+        run: |
+          apk="$RUNNER_TEMP/sample/project/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$apk"
+          "$ANDROID_HOME/build-tools/34.0.0/aapt2" dump badging "$apk" | grep "package: name='dev.inconnuboy.sample'"

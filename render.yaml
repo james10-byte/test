@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: inconnu-boy-apk-builder
+    runtime: docker
+    plan: pro
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    autoDeploy: false
+    disk:
+      name: inconnu-data
+      mountPath: /data
+      sizeGB: 30
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /data
+      - key: TRUST_PROXY
+        value: "true"
+      - key: WORKER_CONCURRENCY
+        value: "1"
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: API_KEY
+        sync: false

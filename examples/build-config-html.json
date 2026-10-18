@@ -1,0 +1,20 @@
+{
+  "appName": "Sample App",
+  "packageId": "com.example.sample",
+  "versionName": "1.0.0",
+  "versionCode": 1,
+  "orientation": "portrait",
+  "statusBarColor": "#0A0D14",
+  "navigationBarColor": "#0A0D14",
+  "inputType": "zip",
+  "icon": {
+    "background": "#0A0D14",
+    "adaptiveBackground": "#0A0D14",
+    "scale": 1,
+    "padding": 0.12,
+    "offsetX": 0,
+    "offsetY": 0,
+    "fit": "contain"
+  },
+  "signing": "debug"
+}

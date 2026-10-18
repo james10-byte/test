@@ -1,0 +1,10 @@
+{
+  "appName": "Example Site",
+  "packageId": "com.example.site",
+  "versionName": "1.0.0",
+  "versionCode": 1,
+  "orientation": "unspecified",
+  "inputType": "url",
+  "url": "https://example.com",
+  "signing": "debug"
+}
