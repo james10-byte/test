@@ -1,0 +1,11 @@
+.git
+builds
+uploads
+keystore
+venv
+__pycache__
+*.apk
+android-app-wrapper/node_modules
+android-app-wrapper/android/build
+android-app-wrapper/android/app/build
+android-app-wrapper/android/.gradle
